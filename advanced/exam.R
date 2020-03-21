@@ -39,7 +39,7 @@ dfmpg[,"grad"] <- ifelse(test = dfmpg$ctyhwytl>=30,
                          yes = "A",
                          no = ifelse(test=dfmpg$ctyhwytl>=25,yes = "B",
                                      no=ifelse(test=dfmpg$ctyhwytl,yes = "C",no = "D")))
-
+dfmpg
 
 
 
