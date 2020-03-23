@@ -1,6 +1,15 @@
 install.packages("mongolite")
 library("stringr")
 library("mongolite")
+
+
+#mongodb에 저장하기 위해서는 크롤링 해야한다.
+con <- mongo(collection = "crawl",
+             db = "bigdata",
+             url = "mongodb://127.0.0.1")
+
+
+
 url <- "https://www.clien.net/service/group/community?&od=T31&po=0"
 url_data <-  readLines(url,encoding = "UTF-8")
 url_data
@@ -17,7 +26,7 @@ url_data[200]
 #1.str_detect(패턴을 검사할 문자열,패턴)를 이용해서 웹페이지 전체에서 필요한 데이터만 먼저 추출
 #str_detect(url_data,"subject_fixed")
 filter_data <- url_data[str_detect(url_data,"subject_fixed")]
-filter_data
+
 #2. 추출한 데이터 전체에서 내가 필요한 문자열만 추출
 #str_extract -> 패턴에 일치하는 문자열을 리턴
 #후방, 전방 탐색 정규 표현식
@@ -46,10 +55,24 @@ url_val
 
 url_val <- paste0("https://www.clien.net/",url_val)
 url_val
-
-
 ####csv파일로 생성####
 final_data <- cbind(title,hit,url_val)
 final_data
 write.csv(final_data,"crawl_data.csv")
+save(final_data,file="crawl_data.RData")
+
+#############mongodb에 저장하기####
+if (con$count()>0) {
+  con$drop()
+}
+final_data
+class(final_data)##matirx -> 보통 data.frame형식으로 넣어줘야 한다 (mongodb에)
+##mongodb에 데이터를 저장하기 위해서 dataframe으로 변환
+final_data <- data.frame(final_data)
+
+con$insert(final_data)
+
+
+
+
 
